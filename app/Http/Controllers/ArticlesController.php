@@ -50,6 +50,7 @@ class ArticlesController extends Controller
         $article->body = request('body');
         $article->save(); */
 
+        /* OLD
         request()->validate([
             'title' => 'required',
             'excerpt' => 'required',
@@ -59,15 +60,23 @@ class ArticlesController extends Controller
             'title' => request('title'),
             'excerpt' => request('excerpt'),
             'body' => request('body')
+        ]); */
+
+        /* OLD
+        $validatedAttributes = request()->validate([
+            'title' => 'required',
+            'excerpt' => 'required',
+            'body' => 'required'
         ]);
 
+        Article::create($validatedAttributes); */
 
+        Article::create($this->validateArticle());
 
+        // return redirect('/articles');
+        // Updated using Named Routes
+        return redirect(route('articles.index'));
 
-
-
-
-        return redirect('/articles');
     }
 
 
@@ -92,6 +101,7 @@ class ArticlesController extends Controller
     {
         // Persist the edited resource
 
+        /* OLD
         request()->validate([
             'title' => 'required',
             'excerpt' => 'required',
@@ -103,12 +113,18 @@ class ArticlesController extends Controller
         $article->title = request('title');
         $article->excerpt = request('excerpt');
         $article->body = request('body');
-        $article->save();
+        $article->save(); */
 
-        return redirect('/articles/' . $article->id);
+        $article->update($this->validateArticle());
 
+        // return redirect('/articles/' . $article->id);
+        // Updated using Named Routes
+        // return redirect(route('articles.show', $article));
 
+        // Using new path() Method in Article Model
+        return redirect($article->path());
     }
+
 
     public function destroy()
     {
@@ -116,8 +132,14 @@ class ArticlesController extends Controller
     }
 
 
-
-
+    protected function validateArticle()
+    {
+        return request()->validate([
+            'title' => 'required',
+            'excerpt' => 'required',
+            'body' => 'required'
+        ]);
+    }
 
 
 }
