@@ -17,11 +17,11 @@ class ArticlesController extends Controller
     }
 
 
-    public function show($id)
+    public function show(Article $article)
     {
         // Show a single resource
-
-        $article = Article::find($id);
+        // $article = Article::find($id);
+        // $article = Article::findOrFail($id);  // Replaced by call to Model above (Article $article)
 
         return view('articles.show', ['article' => $article]);
     }
@@ -43,24 +43,41 @@ class ArticlesController extends Controller
         // Data is in the Request() helper
         // dump(request()->all());
 
-        // The LONG way:
+        /*  The LONG way:
         $article = new Article();
         $article->title = request('title');
         $article->excerpt = request('excerpt');
         $article->body = request('body');
-        $article->save();
+        $article->save(); */
+
+        request()->validate([
+            'title' => 'required',
+            'excerpt' => 'required',
+            'body' => 'required'
+        ]);
+        Article::create([
+            'title' => request('title'),
+            'excerpt' => request('excerpt'),
+            'body' => request('body')
+        ]);
+
+
+
+
+
+
 
         return redirect('/articles');
     }
 
 
-    public function edit($id)
+    public function edit(Article $article)
     {
         // Show a view to edit an existing resource
         // die('Hello Edit');
 
         // Find the Article object associated with the id in the URI
-        $article = Article::find($id);
+        // $article = Article::find($id);  // Replaced by call to Model above (Article $article)
 
         //Pass the Article object to the view
         // return view('articles.edit', ['article' => $article]);
@@ -71,12 +88,18 @@ class ArticlesController extends Controller
     }
 
 
-    public function update($id)
+    public function update(Article $article)
     {
         // Persist the edited resource
 
+        request()->validate([
+            'title' => 'required',
+            'excerpt' => 'required',
+            'body' => 'required'
+        ]);
+
         // Find the Article object associated with the id in the URI
-        $article = Article::find($id);
+        // $article = Article::find($id);  // Replaced by call to Model above (Article $article)
         $article->title = request('title');
         $article->excerpt = request('excerpt');
         $article->body = request('body');
