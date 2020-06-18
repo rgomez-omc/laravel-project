@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Tag;
 use App\Article;
 use Illuminate\Http\Request;
 
@@ -10,7 +12,11 @@ class ArticlesController extends Controller
     {
         // Render a list of a resource
 
-        $articles = Article::latest()->get();
+        if (request('tag')) {
+            $articles = Tag::where('name', request('tag'))->firstOrFail()->articles;
+        } else {
+            $articles = Article::latest()->get();
+        }
 
         return view('articles.index', ['articles' => $articles]);
 
@@ -31,7 +37,16 @@ class ArticlesController extends Controller
     {
         // Show a view to create a new resource
         // die('Hello Create');
-        return view('articles.create');
+        // Loading view only:
+        // return view('articles.create');
+
+        // return view and pass tags:
+        return view('articles.create', [
+            'tags' => Tag::all()
+        ]);
+
+
+
     }
 
 
@@ -71,7 +86,28 @@ class ArticlesController extends Controller
 
         Article::create($validatedAttributes); */
 
-        Article::create($this->validateArticle());
+        /* NEW
+        Article::create($this->validateArticle()); */
+
+        // testing:
+        // dd(request()->all());
+
+        // Can't create Article yet because a recent update now requires a user_id
+        // So we will instantiate it first, then hard code the user_id
+        // Article::create($this->validateArticle());
+
+        /* OLD - validation no longer maps to Article properties
+        $article = new Article($this->validateArticle());
+        $article->user_id = 1; // after we learn authentication then: auth()->id();
+        $article->save();
+        $article->tags()->attach(request('tags')); //tags is an array [1,2,3] */
+
+        $this->validateArticle();
+        $article = new Article(request(['title', 'excerpt', 'body']));
+        $article->user_id = 1; // after we learn authentication then: auth()->id();
+        $article->save();
+        $article->tags()->attach(request('tags')); //tags is an array [1,2,3]
+
 
         // return redirect('/articles');
         // Updated using Named Routes
@@ -137,7 +173,8 @@ class ArticlesController extends Controller
         return request()->validate([
             'title' => 'required',
             'excerpt' => 'required',
-            'body' => 'required'
+            'body' => 'required',
+            'tags' => 'exists:tags,id'
         ]);
     }
 

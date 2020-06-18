@@ -4,7 +4,7 @@
     <div id="wrapper">
         <div id="page" class="container">
 
-            @foreach($articles as $article)
+            @forelse($articles as $article)
 
                 <div id="content">
                     <div class="title">
@@ -15,8 +15,9 @@
                     {{ $article->excerpt }}
 
                 </div>
-
-            @endforeach
+            @empty
+                <p>No Relevent Articles - Yet</p>
+            @endforelse
 
         </div>
     </div>
